@@ -311,11 +311,28 @@ async def about_project(callback: types.CallbackQuery):
 
 @dp.message_handler(state=UserState.help_chat)
 async def help_redirect(message: types.Message, state: FSMContext):
-    await bot.forward_message(config.admins[0], message.chat.id, message.message_id)
+    ids = []
+    # Пересылка сообщения от пользователя в канал @support1
+    forwarded_message = await bot.forward_message('@suppport1', message.chat.id, message.message_id)
     time.sleep(0.1)
-    await message.answer("Ваше обращение было отправлено в поддержку, ожидайте ответа")
+    await bot.send_message(message.chat.id, "Ваше обращение было отправлено в поддержку, ожидайте ответа", reply_to_message_id=forwarded_message.message_id)
+    await bot.send_message('@suppport1', f'{message.chat.id}')
+    ids.append(message.chat.id)
     await state.finish()
 
+# ответы
+@dp.message_handler(commands=['ans'])
+async def ans(message: types.Message, state: FSMContext):
+    command_parts = message.text.split()
+    if len(command_parts) < 3:
+        await message.answer("Использование: /ans user_id my answer")
+        return
+    # Получаем id пользователя
+    user_id = command_parts[1]
+    # Получаем ответ
+    answer = ' '.join(command_parts[2:])
+    await bot.send_message(user_id, f"Ответ на ваш вопрос:\n {answer}")
+    await state.finish()
 
 # pre checkout  (must be answered in 10 seconds)
 @dp.pre_checkout_query_handler(lambda query: True)
