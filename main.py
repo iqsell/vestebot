@@ -358,7 +358,6 @@ async def successful_payment(message: types.Message):
 
 @dp.message_handler(content_types=ContentType.CONTACT)
 async def contact(message: types.Message):
-    # TODO check order
     await send_message_to_logs(message)
 
 
